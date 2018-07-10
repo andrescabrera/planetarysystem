@@ -4,7 +4,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Test as test
 
-class GeometryTest {
+class PointTest {
 
     @test
     fun `test Point to Line distance`() {
