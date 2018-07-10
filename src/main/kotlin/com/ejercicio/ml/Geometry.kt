@@ -1,25 +1,32 @@
 package com.ejercicio.ml
 
-class Point(val x: Double, val y: Double) {
+import java.math.BigDecimal
+import java.math.RoundingMode
+
+class Point(val x: Double, val y: Double, private val scale: Int = 2) {
     fun distanceFrom(p: Point): Double {
         val c1 = x - p.x
         val c2 = y - p.y
         return Math.sqrt(c1 * c1 + c2 * c2)
     }
+
+    fun rp() = Point(rounded(x), rounded(y))
+
+    private fun rounded(d: Double) = BigDecimal(d).setScale(scale, RoundingMode.HALF_UP).toDouble()
 }
 
 class Line(private val a: Point, private val b: Point) {
     fun contains(c: Point): Boolean {
-        if (a.x == c.x) return b.x == c.x //horizontal
-        if (a.y == c.y) return b.y == c.y //vertical
-        return a.distanceFrom(c) + b.distanceFrom(c) == a.distanceFrom(b)
+        if (a.rp().x == c.rp().x) return b.rp().x == c.rp().x //horizontal
+        if (a.rp().y == c.rp().y) return b.rp().y == c.rp().y //vertical
+        return a.rp().distanceFrom(c.rp()) + b.rp().distanceFrom(c.rp()) == a.rp().distanceFrom(b.rp())
     }
 }
 
 /**
  * from http://www.dma.fi.upm.es/personal/mabellanas/tfcs/kirkpatrick/Aplicacion/algoritmos.htm#puntoInterior
  */
-class Triangle(private val a1: Point, private val a2: Point, private val a3: Point) {
+class Triangle(private val a1: Point, private val a2: Point, private val a3: Point, private var maxPerimeter: Double = 0.0) {
     fun contains(p: Point): Boolean {
         // 2. Calcular la orientación de los triángulos que forma el punto P con los vértices del triángulo A1A2A3.
         // Se calcula la orientación de los triángulos A1A2P, A2A3P, A3A1P, con el método explicado en el punto 1.
@@ -49,6 +56,16 @@ class Triangle(private val a1: Point, private val a2: Point, private val a3: Poi
             TriangleOrientation.POSITIVE
         else
             TriangleOrientation.NEGATIVE
+    }
+
+    fun isMaxPerimeter(): Boolean {
+        val actualPerimeter = a1.distanceFrom(a2) + a2.distanceFrom(a3)
+        return if (actualPerimeter > maxPerimeter) {
+            maxPerimeter = actualPerimeter
+            true
+        } else {
+            false
+        }
     }
 
     enum class TriangleOrientation {
